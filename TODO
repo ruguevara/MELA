@@ -1,2 +1,10 @@
-  * upload to github
   * collect various stats
+    * fitness
+    * generations
+    * etc
+  * make recombinations
+  * interactiveness
+    * drawing walls
+    * killing
+    * controlling global mutation rate, selection rates, etc...
+  * write readme and installing instructions
