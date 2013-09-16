@@ -1,8 +1,6 @@
+#!/usr/bin/env python
 # coding: utf-8
-#try:
-#    import numpypy
-#except ImportError:
-#    pass
+
 import argparse
 from glob import glob
 from random import choice
@@ -42,21 +40,38 @@ def main():
     parser.set_defaults(**DEFAULTS)
     options = parser.parse_args()
 
-    if options.maze:
-        maze = Walls.load(options.maze)
-        grid_size = maze.shape
-    elif options.random_maze:
-        maze = Walls.load(choice(list(glob('mazes/*.npy'))))
-        grid_size = maze.shape
+    params = dict(fullscreen=options.fullscreen, visible=False, vsync=False, fps=options.fps, show_fps=options.show_fps)
+
+    maze = None
+    grid_size = None
+
+    # guessing dimensions:
+    # from fullscreen dimensions
+    # from maze
+    # from size parameter
+    if not options.fullscreen:
+        if options.maze:
+            maze = Walls.load(options.maze)
+            grid_size = maze.shape
+        elif options.random_maze:
+            maze = Walls.load(choice(list(glob('mazes/*.npy'))))
+            grid_size = maze.shape
+        else:
+            size = map(int, options.size.split('x'))
+            grid_size = (size[1] // GRID_SCALE, size[0] // GRID_SCALE)
+
+        width = grid_size[1] * GRID_SCALE
+        height = grid_size[0] * GRID_SCALE
+        params.update(dict(width=width, height=height,))
+        app = Application(**params)
     else:
-        size = map(int, options.size.split('x'))
-        grid_size = (size[1] // GRID_SCALE, size[0] // GRID_SCALE)
-        maze = Walls(grid_size)
+        app = Application(**params)
+        width = app.window.width
+        height = app.window.height
+        grid_size = (height // GRID_SCALE, width // GRID_SCALE)
 
-    width = grid_size[1] * GRID_SCALE
-    height = grid_size[0] * GRID_SCALE
-
-    stats = Statistics(height)
+    maze = maze or Walls(grid_size)
+    stats = Statistics(1000)
     env = Environment(maze, GRID_SCALE, FOOD_INIT_PROB)
     # env.set_stats(stats)
     population = PolulationWithMessia.random(POPULATION_SIZE)
@@ -64,11 +79,8 @@ def main():
     # population.set_stats(stats)
     env.set_population(population)
 
-    params = dict(fullscreen=options.fullscreen, visible=False, vsync=False, fps=options.fps, show_fps=options.show_fps)
-    if not options.fullscreen:
-        params.update(dict(width=width, height=height,))
-    app = Application(**params)
-    app.set_scene(EnvironmentRender(width, height, env, debug=options.debug), 1./2000)
+    env_render = EnvironmentRender(width, height, env, debug=options.debug)
+    app.set_scene(env_render, 1./2000)
     app.paused = options.paused
     app.run()
 
