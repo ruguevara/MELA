@@ -49,28 +49,29 @@ def main():
     # from fullscreen dimensions
     # from maze
     # from size parameter
-    if not options.fullscreen:
-        if options.maze:
-            maze = Walls.load(options.maze)
-            grid_size = maze.shape
-        elif options.random_maze:
-            maze = Walls.load(choice(list(glob('mazes/*.npy'))))
-            grid_size = maze.shape
-        else:
+    if options.maze:
+        maze = Walls.load(options.maze)
+        grid_size = maze.shape
+    elif options.random_maze:
+        maze = Walls.load(choice(list(glob('mazes/*.npy'))))
+        grid_size = maze.shape
+    if options.fullscreen:
+        app = Application(**params)
+        width = app.window.width
+        height = app.window.height
+        grid_size = grid_size or (height // GRID_SCALE, width // GRID_SCALE)
+        width = grid_size[1] * GRID_SCALE
+        height = grid_size[0] * GRID_SCALE
+    else:
+        if not maze:
             size = map(int, options.size.split('x'))
             grid_size = (size[1] // GRID_SCALE, size[0] // GRID_SCALE)
-
         width = grid_size[1] * GRID_SCALE
         height = grid_size[0] * GRID_SCALE
         params.update(dict(width=width, height=height,))
         app = Application(**params)
-    else:
-        app = Application(**params)
-        width = app.window.width
-        height = app.window.height
-        grid_size = (height // GRID_SCALE, width // GRID_SCALE)
 
-    maze = maze or Walls(grid_size)
+    maze = maze if maze is not None else Walls(grid_size)
     stats = Statistics(1000)
     env = Environment(maze, GRID_SCALE, FOOD_INIT_PROB)
     # env.set_stats(stats)
