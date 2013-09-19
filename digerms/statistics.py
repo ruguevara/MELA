@@ -1,35 +1,64 @@
 # coding: utf-8
+from collections import OrderedDict
 import numpy as np
+import pandas as pd
+
 from genome import ZeroObjectArray
 
-class Statistics(ZeroObjectArray):
+# TODO maybe Pandas?
+
+class Statistics(pd.DataFrame):
     _fields = (
-        ('energy', np.float),
-        ('total_health', np.float),
-        ('avg_health', np.float),
-        ('max_health', np.float),
-        ('total_eaten', np.float),
-        ('avg_age', np.float),
-        ('max_age', np.float),
-        ('food', np.float),
-        ('food_eaten', np.float),
+        ('birth_health_mean', np.float),
+        ('birth_health_amin', np.float),
+        ('birth_health_amax', np.float),
+        ('herbivore_sum', np.float),
+        ('total_eaten_mean', np.float),
+        ('total_eaten_sum', np.float),
+        ('age_median', np.float),
+        ('age_mean', np.float),
+        ('age_amax', np.float),
+        ('gencount_amin', np.uint64),
+        ('gencount_amax', np.uint64),
+        ('gencount_mean', np.uint64),
+
+        ('health_sum', np.float),
+        ('health_mean', np.float),
+        ('fitness_max', np.float),
+        ('fitness_mean', np.float),
+
         ('step', np.uint64),
-        ('min_generation', np.uint64),
-        ('avg_generation', np.uint64),
-        ('max_generation', np.uint64),
-        ('born', np.uint),
-        ('random', np.uint),
-        ('deaths', np.uint),
-        ('attacks', np.uint),
-        ('kills', np.uint),
+        ('born', np.uint16),
+        ('random', np.uint16),
+        ('deaths', np.uint16),
+        ('attacking_sum', np.uint16),
+        ('attacked_ok_sum', np.uint16),
+        ('eating_sum', np.uint16),
+
+        ('primary_color_histogram_0', np.uint16),
+        ('primary_color_histogram_1', np.uint16),
+        ('primary_color_histogram_2', np.uint16),
+        ('primary_color_histogram_3', np.uint16),
+        ('primary_color_histogram_4', np.uint16),
+        ('primary_color_histogram_5', np.uint16),
+        ('primary_color_histogram_6', np.uint16),
+        ('primary_color_histogram_7', np.uint16),
     )
 
     def __init__(self, shape):
-        super(Statistics, self).__init__(shape)
+        dtype = [(n,t) for n, t in self._fields]
+        data = np.recarray(shape, dtype=dtype)
+        super(Statistics, self).__init__(data=data)
         self._pointer = 0
 
+    @property
     def current(self):
-        return self[self._pointer]
+        return self.xs(self._pointer)
 
     def advance_frame(self):
         self._pointer = (self._pointer + 1) % self.shape[0]
+        self.current[:] = 0
+
+    def log(self, **data):
+        self.current[:] = data
+        print self.current

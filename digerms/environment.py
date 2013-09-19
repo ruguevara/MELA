@@ -152,6 +152,10 @@ class Environment(object):
         self.time = 0
         self.food = FoodField(cells_w, cells_h, init_food_appear_prob)
         self.smell = SmellField((cells_h, cells_w, len(SMELLS)))
+        self.stats = None
+
+    def set_stats(self, stats):
+        self.stats = stats
 
     def consume_food(self, agent_vector):
         cells = self.cell_X[agent_vector]

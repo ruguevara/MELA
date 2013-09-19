@@ -74,7 +74,7 @@ def main():
     maze = maze if maze is not None else Walls(grid_size)
     stats = Statistics(1000)
     env = Environment(maze, GRID_SCALE, FOOD_INIT_PROB)
-    # env.set_stats(stats)
+    env.set_stats(stats)
     population = PolulationWithMessia.random(POPULATION_SIZE)
     # population = Population.random(POPULATION_SIZE)
     # population.set_stats(stats)
