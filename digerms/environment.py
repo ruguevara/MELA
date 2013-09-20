@@ -228,6 +228,7 @@ class Environment(object):
         self.smell.calc_gradient()
 
     def update(self):
+        self.stats.advance_frame()
         self.fetch_positions()
         self.calc_cell_pos()
         self.check_walls()

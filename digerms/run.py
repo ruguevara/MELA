@@ -77,7 +77,6 @@ def main():
     env.set_stats(stats)
     population = PolulationWithMessia.random(POPULATION_SIZE)
     # population = Population.random(POPULATION_SIZE)
-    # population.set_stats(stats)
     env.set_population(population)
 
     env_render = EnvironmentRender(width, height, env, debug=options.debug)

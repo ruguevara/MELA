@@ -1,11 +1,6 @@
 # coding: utf-8
-from collections import OrderedDict
 import numpy as np
 import pandas as pd
-
-from genome import ZeroObjectArray
-
-# TODO maybe Pandas?
 
 class Statistics(pd.DataFrame):
     _fields = (
@@ -51,14 +46,20 @@ class Statistics(pd.DataFrame):
         super(Statistics, self).__init__(data=data)
         self._pointer = 0
 
-    @property
-    def current(self):
-        return self.xs(self._pointer)
+    def _get_current(self):
+        return self.ix[self._pointer]
+
+    def _set_current(self, values):
+        if not isinstance(values, pd.Series):
+            values = pd.Series(values)
+        self.ix[self._pointer] = values
+
+    current = property(_get_current, _set_current)
 
     def advance_frame(self):
         self._pointer = (self._pointer + 1) % self.shape[0]
-        self.current[:] = 0
+        self.current = 0
 
     def log(self, **data):
-        self.current[:] = data
+        self.current = data
         print self.current

@@ -13,11 +13,10 @@ class Population(object):
         self._count = count
         self._agents = None
         self.env = None
+        self.stat_logger = None
         self.total_born = 0
         self.total_random = 0
         self.total_deaths = 0
-        self.fitness_max = 0
-        self.fitness_mean = 0
 
     def __iter__(self):
         return iter(self._agents)
@@ -37,8 +36,22 @@ class Population(object):
         return population
 
     def set_env(self, env):
+        self.stat_logger = env.stats
         self._agents.env = env
         self.env = env
+
+    def log_stats(self):
+        if self.stat_logger is not None:
+            stats = self._agents.get_step_stats()
+            stats.update(
+                born=self.total_born,
+                random=self.total_random,
+                deaths=self.total_deaths,
+                fitness_max=self._fitness.max(),
+                fitness_mean=self._fitness.mean(),
+                step=self.env.time
+            )
+            self.stat_logger.log(**stats)
 
     @property
     def senses(self):
@@ -79,8 +92,7 @@ class Population(object):
         eaten = self._agents.total_eaten
         # fitness = eaten / age
         fitness = eaten / age + self._agents.health / 3
-        self.fitness_max = fitness.max()
-        self.fitness_mean = fitness.mean()
+        self._fitness = fitness
         return fitness
 
     def select(self, fitness, select_ratio=SELECT_RATIO):
@@ -172,22 +184,7 @@ class Population(object):
         self._agents.develop_from_chromosomes(chromosomes, idxs)
         self.env.add_new_agents(idxs)
 
-    def get_stats(self):
-        stats = self._agents.get_step_stats()
-        pop_stats = dict(
-            born=self.total_born,
-            random=self.total_random,
-            deaths=self.total_deaths,
-            fitness_max=self.fitness_max,
-            fitness_mean=self.fitness_mean,
-        )
-        stats.update(pop_stats)
-        return stats
-
     def update(self):
         self._agents.update()
         self.select_and_reproduce()
-        # stats = self.get_stats()
-        # print stats['born'], stats['random'], stats['deaths']
-        # print stats['fitness_max'], stats['fitness_mean']
-        # print np.array([stats['primary_color_histogram_%d' % i] for i in range(8)])
+        self.log_stats()
