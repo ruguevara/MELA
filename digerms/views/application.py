@@ -33,6 +33,8 @@ class Application(object):
 
         self.window.on_draw = self.on_draw
         self.window.on_key_press = self.on_key_press
+        self.window.on_mouse_drag = self.on_mouse_drag
+        self.window.on_mouse_press = self.on_mouse_press
         self.window.push_handlers(on_key_press=self.on_key_press)
 
     def set_mode(self, mode, interval):
@@ -57,6 +59,12 @@ class Application(object):
 
     def on_key_press(self, symbol, modifiers):
         self.mode.on_key_press(symbol, modifiers)
+
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        self.mode.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        self.mode.on_mouse_press(x, y, buttons, modifiers)
 
     def run(self):
         self.window.set_visible()

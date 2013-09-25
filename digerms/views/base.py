@@ -93,6 +93,12 @@ class GraphicsObject(EventDispatcher):
     def on_key_press(self, symbol, modifiers):
         pass
 
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        pass
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        pass
+
     def remove(self):
         self.dispatch_event('on_remove', self)
     #
@@ -161,6 +167,13 @@ class Mode(EventDispatcher):
     def on_key_press(self, symbol, modifiers):
         pass
 
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        pass
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        pass
+
+
 Mode.register_event_type('on_mode_change')
 
 class Group(GraphicsObject):
@@ -214,6 +227,15 @@ class Group(GraphicsObject):
     def on_key_press(self, symbol, modifiers):
         for obj in self.objects:
             obj.on_key_press(symbol, modifiers)
+
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        for obj in self.objects:
+            obj.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        for obj in self.objects:
+            obj.on_mouse_press(x, y, buttons, modifiers)
+
 
     def __iter__(self):
         return iter(self.objects)

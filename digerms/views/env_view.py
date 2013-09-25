@@ -30,6 +30,30 @@ class WallsView(BitMapObject):
         f[:] = 255
         return np.dstack([f, walls])
 
+    def _to_cell(self, x, y):
+        return int(round(float(x)/GRID_SCALE)), int(round(float(y)/GRID_SCALE))
+
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        r, c = self._to_cell(x, y)
+        dr, dc = self._to_cell(dx, dy)
+        value = 1 if buttons==1 else 0
+        steps = max(dr, dc, 1)
+        inc_c = float(dc) / steps
+        inc_r = float(dr) / steps
+        cur_c = c
+        cur_r = r
+        # рисуем линию
+        for i in range(steps):
+            self.walls[int(round((cur_c))), int(round((cur_r)))] = value
+            cur_c += inc_c
+            cur_r += inc_r
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        r, c = self._to_cell(x, y)
+        value = 1 if buttons==1 else 0
+        self.walls[c, r] = value
+
+
 
 class SmellsView(BitMapObject):
     def __init__(self, env, **kwargs):
@@ -153,3 +177,11 @@ class ExperimentMode(Mode):
             self.toggle_pause()
         else:
             self.groups.on_key_press(symbol, modifiers)
+
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        self.groups.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        self.groups.on_mouse_press(x, y, buttons, modifiers)
+
+

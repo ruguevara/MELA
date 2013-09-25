@@ -64,6 +64,7 @@ class StatsView(Group):
             # "age_mean":      ((  0, 128,  255), None),
             "age_median":    ((  0,   0,  255), None),
             "age_amax":      ((  0, 255,  255), None),
+            "gencount_amax":  ((  255, 0,  255), None),
         }
         self.vertex_lists = {}
 
