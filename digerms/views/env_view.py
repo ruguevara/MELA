@@ -125,11 +125,11 @@ class ExperimentMode(Mode):
         env = Environment(maze, GRID_SCALE, FOOD_INIT_PROB)
         env.set_stats(Statistics(self.width))
         env.set_population(population)
-        self.env_view = self.groups.add(EnvironmentView(env, self.width, self.height-stats_height, **kwagrs))
-
         # split window
-        self.stats_view = self.groups.add(StatsView(env.stats, self.width, stats_height, **kwagrs))
-        self.stats_view.pos = Vec(0, self.height-stats_height)
+        self.env_view = EnvironmentView(env, self.width, self.height-stats_height, **kwagrs)
+        self.stats_view = StatsView(env.stats, 0, self.height-stats_height,
+                                    self.width, stats_height, **kwagrs)
+        self.groups.add_objects([self.env_view, self.stats_view])
 
     def simulate(self, delta):
         # may be called with faster rate than screen update at fps rate

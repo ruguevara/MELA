@@ -88,7 +88,7 @@ class VectorAgent(ObjectArray):
         ('herbivore', (np.sum,)),
         ('primary_color', (primary_color_histogram,)),
         ('age', (np.mean, np.max, np.median)),
-        ('health', (np.sum, np.mean)),
+        ('health', (np.sum, np.mean, np.median)),
         ('eating', (np.sum,)),
         ('total_eaten', (np.sum, np.mean)),
         ('attacking', (np.sum,)),

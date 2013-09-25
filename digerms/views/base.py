@@ -168,6 +168,7 @@ class Group(GraphicsObject):
         super(Group, self).__init__(x, y)
         self.objects = []
         self.batch = None
+        self.parent_group=OrderedGroup(0)
 
     def add(self, instance, group=None):
         instance.push_handlers(on_remove=self.on_remove)
@@ -186,7 +187,6 @@ class Group(GraphicsObject):
     def add_objects(self, instances):
         for group, inst in enumerate(instances):
             g = OrderedGroup(group, self.parent_group)
-            print inst, g
             self.add(inst, group=g)
         return instances
 
