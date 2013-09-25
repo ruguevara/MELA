@@ -21,7 +21,7 @@ ATTACK_ENERGY = 1
 #HUNT_KPD = 0.9
 #BIRTH_KPD = 1
 HUNT_KPD = 0.99
-BIRTH_KPD = 0.99
+BIRTH_KPD = 0.5
 
 # food
 FOOD_GROWTH = 0.01 #0.00001 # how quickly does food grow on a square?

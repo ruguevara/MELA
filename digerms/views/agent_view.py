@@ -1,8 +1,12 @@
 # coding: utf-8
 import math
+import random
 from pyglet import graphics
 from pyglet.gl import GL_QUADS, GL_LINES
+from pyglet.window import key
 import numpy as np
+from messia import WolfChromosome, RabbitChromosome
+
 from views.base import GraphicsObject
 
 class PopulationView(GraphicsObject):
@@ -48,3 +52,21 @@ class PopulationView(GraphicsObject):
             attacking_ok = self.env.population._agents.attacked_ok.astype(np.uint8)
             line_colors = attacking_ok[:, None, None] * self.attack_colors
             self.links_list.colors = line_colors.flatten()
+
+    def launch_messia(self, messia_cls, n=1):
+        population = self.env.population
+        start = random.randint(0, len(self.env.population)-n)
+        sel = range(start, start+n)
+        # sel = slice(start, start+n)
+        messia = messia_cls(n)
+        population._agents.develop_from_chromosomes(messia, sel)
+        agent = population._agents[sel]
+        agent.health = agent.birth_health * 5
+        self.env.add_new_agents(sel)
+
+    def on_key_press(self, symbol, modifiers):
+        if symbol == key.W:
+            # запустить волка
+            self.launch_messia(WolfChromosome, 10)
+        elif symbol == key.R:
+            self.launch_messia(RabbitChromosome, 10)
