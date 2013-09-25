@@ -43,6 +43,7 @@ class Statistics(pd.DataFrame):
     def __init__(self, shape):
         dtype = [(n,t) for n, t in self._fields]
         data = np.recarray(shape, dtype=dtype)
+        data[:] = 0
         super(Statistics, self).__init__(data=data)
         self._pointer = 0
 
