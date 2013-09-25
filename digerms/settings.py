@@ -4,7 +4,7 @@ import math
 POPULATION_SIZE = 300
 SELECT_RATIO = 0.95
 # RANDOM_RATIO = 0
-RANDOM_RATIO = 0.1
+RANDOM_RATIO = 0.01
 
 ROT_SPEED = 0.5
 # масштаб сетки

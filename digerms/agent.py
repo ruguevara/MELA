@@ -287,7 +287,7 @@ class VectorAgent(ObjectArray):
         self.y[idxs] += self.ay[idxs] * step
         self.wrap()
 
-    def reproduce(self, idxs, to_idxs):
+    def reproduce(self, idxs, to_idxs, consume_health=True):
         unique_idxs = np.unique(idxs)
         to_idxs = to_idxs[:len(unique_idxs)]
         if len(unique_idxs) == 0:
@@ -304,7 +304,8 @@ class VectorAgent(ObjectArray):
         self.y[to_idxs] += self.ay[to_idxs] * ATTACK_RADIUS
         self.gencount[to_idxs] = parents.gencount + 1
         self.health[to_idxs] = parents.birth_health
-        self.consume_energy(parents.birth_health / BIRTH_KPD, unique_idxs)
+        if consume_health:
+            self.consume_energy(parents.birth_health / BIRTH_KPD, unique_idxs)
         return len(unique_idxs)
 
 

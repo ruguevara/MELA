@@ -10,7 +10,7 @@ from environment import Environment, Walls
 
 from settings import GRID_SCALE, FOOD_INIT_PROB
 
-from .agent_view import  PopulationRender
+from .agent_view import  PopulationView
 from .base import GraphicsObject, Mode, Group, BatchGroup, Vec, BitMapObject
 from statistics import Statistics
 from .stats_view import StatsView
@@ -126,7 +126,7 @@ class EnvironmentView(Group):
             SmellsView(self.env, **kwargs),
             GrassView(self.width, self.height, self.env,  **kwargs),
             WallsView(self.env,  **kwargs),
-            PopulationRender(self.env,  **kwargs),
+            PopulationView(self.env,  **kwargs),
         ])
 
     def simulate(self, dt=None):
@@ -157,6 +157,11 @@ class ExperimentMode(Mode):
 
     def simulate(self, delta):
         # may be called with faster rate than screen update at fps rate
+        if not self.paused:
+            self._do_simulate(delta)
+
+    def _do_simulate(self, delta):
+        # may be called with faster rate than screen update at fps rate
         self.groups.simulate(delta)
 
     def draw(self):
@@ -170,7 +175,7 @@ class ExperimentMode(Mode):
             app.exit()
         elif symbol == key.RIGHT:
             if self.paused:
-                self.simulate(1)
+                self._do_simulate(1)
             else:
                 self.toggle_pause()
         elif symbol == key.SPACE:

@@ -136,9 +136,8 @@ class Population(object):
             to_random_num = 1 if random.random() < to_random_num else 0
         # сколько потомков получить при репродукции
         # надо учесть что не все могут быть готовы к репродукции
-        # либо тогда пусть рожают больше положенного, либо добавлять еще случайных
-        to_born_num = self.total_deaths
-        # to_born_num = int(round(self._count * (1-select_ratio) - to_random_num))
+        # тогда пусть рожают больше положенного
+        to_born_num = self.total_deaths - to_random_num
         self.total_born = self.reproduce(selected_idxs, dead_idxs, fitness, to_born_num)
         self.total_random = self.total_deaths - self.total_born
         self.make_new_random(self.total_random, dead_idxs[self.total_born:])
@@ -169,19 +168,19 @@ class Population(object):
         idxs = np.searchsorted(roulette, selectors)
         idxs = sel_idxs[reranked_idxs[idxs]]
         num_children = self._agents.reproduce(idxs, to_idxs[:len(idxs)])
-        # return num_children
         while num_children < num_to_reproduce:
-            to_copy = idxs[:num_to_reproduce - num_children]
-            num_new = len(to_copy)
-            copy_chroms = VectorAgentChromosome(num_new)
-            copy_chroms._genes[:] = self._agents.chromosomes._genes[to_copy,...]
-            self.replace_from_chromosomes(to_idxs[num_children:num_children+num_new], copy_chroms)
+            # обычных детей не хватает чтобы восполнить убыль
+            forsed_parents = idxs[:num_to_reproduce - num_children]
+            num_new = len(forsed_parents)
+            num_new = self._agents.reproduce(forsed_parents, to_idxs[num_children:num_children+num_new], consume_health=False)
+
             num_children += num_new
         return num_children
 
     def replace_from_chromosomes(self, idxs, chromosomes):
         assert len(idxs) == len(chromosomes), "%d != %d" % (len(idxs), len(chromosomes))
         self._agents.develop_from_chromosomes(chromosomes, idxs)
+        # разбросать новых вокруг?
         self.env.add_new_agents(idxs)
 
     def update(self):

@@ -67,7 +67,7 @@ def main():
         app = Application(**params)
     else:
         # TODO понять, как определять высоту из высоты лабиринта и высоты статистики
-        if not maze:
+        if maze is None:
             size = map(int, options.size.split('x'))
             grid_size = (size[1] // GRID_SCALE, size[0] // GRID_SCALE)
         width = grid_size[1] * GRID_SCALE

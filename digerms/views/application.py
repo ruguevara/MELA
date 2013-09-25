@@ -35,7 +35,7 @@ class Application(object):
         self.window.on_key_press = self.on_key_press
         self.window.on_mouse_drag = self.on_mouse_drag
         self.window.on_mouse_press = self.on_mouse_press
-        self.window.push_handlers(on_key_press=self.on_key_press)
+        # self.window.push_handlers(on_key_press=self.on_key_press)
 
     def set_mode(self, mode, interval):
         self.mode = mode

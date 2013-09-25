@@ -59,12 +59,16 @@ class StatsView(Group):
         self.mode = mode
         self.debug = debug
         self.plots = {
-            "fitness_mean":  ((255, 255, 255), None),
-            "herbivore_sum": ((  0, 255,   0), POPULATION_SIZE),
-            # "age_mean":      ((  0, 128,  255), None),
-            "age_median":    ((  0,   0,  255), None),
-            "age_amax":      ((  0, 255,  255), None),
-            "gencount_amax":  ((  255, 0,  255), None),
+            "fitness_max":  (( 255, 255, 255), None),
+            "herbivore_sum": ((   0, 255,   0), POPULATION_SIZE),
+            "age_median":    ((   0,   0, 255), None),
+            "age_amax":      ((   0, 255, 255), None),
+            "health_sum":    (( 255, 128,  0), None),
+            "attacked_ok_sum":(( 255,  0,  0), POPULATION_SIZE),
+            # "born":          (( 255, 128, 255), POPULATION_SIZE),
+            # "random":        (( 255, 255,  0), POPULATION_SIZE),
+            # "deaths":        (( 128,  64,  0), POPULATION_SIZE),
+            "total_eaten_mean":(( 0,  64,  128), None),
         }
         self.vertex_lists = {}
 
@@ -74,7 +78,7 @@ class StatsView(Group):
         label_y_step = self.height // len(self.plots)
         for i, (plot_code, args) in enumerate(self.plots.iteritems()):
             plots.append(DynamicPlot(self.pos.x, self.pos.y, self.width, self.height,
-                        plot_code, self.pos.y + self.height - i*18 - 18,
+                        plot_code, self.pos.y + self.height - i*17 - 18,
                         *args))
         self.add_objects(plots)
 

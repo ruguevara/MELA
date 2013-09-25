@@ -5,13 +5,9 @@ from pyglet.gl import GL_QUADS, GL_LINES
 import numpy as np
 from views.base import GraphicsObject
 
-PI4 = math.pi / 4
-PI_minus_PI4 = math.pi *2 - PI4
-_2PI = math.pi * 2
-
-class PopulationRender(GraphicsObject):
+class PopulationView(GraphicsObject):
     def __init__(self, env, mode="full", debug=False):
-        super(PopulationRender, self).__init__()
+        super(PopulationView, self).__init__()
         self.env = env
         self.mode = mode
         self.scale = 8
