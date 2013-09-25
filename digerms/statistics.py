@@ -50,6 +50,12 @@ class Statistics(pd.DataFrame):
     def _get_current(self):
         return self.ix[self._pointer]
 
+    def history(self):
+        # TODO все равно есть копирование, может тогда лучше добавлять в конец и стирать начало?
+        history = self.ix[self._pointer+1:]
+        history = history.append(self.ix[0:self._pointer+1])
+        return history
+
     def _set_current(self, values):
         if not isinstance(values, pd.Series):
             values = pd.Series(values)

@@ -107,25 +107,20 @@ class GraphicsObject(EventDispatcher):
 
 GraphicsObject.register_event_type('on_remove')
 
-
-class BitMapObject(GraphicsObject):
+class SpriteObject(GraphicsObject):
     """
-    Dynamic non-moving sprite
+    sprite
     """
-    def __init__(self, x=0, y=0, scale=1, **kwargs):
-        super(BitMapObject, self).__init__(x, y)
-        data = self.get_data()
-        self.image = ArrayInterfaceImage(data)
+    def __init__(self, x=0, y=0, scale=1, usage="dynamic", **kwargs):
+        super(SpriteObject, self).__init__(x, y)
         self.scale = scale
+        self.usage = usage
 
-    def get_data(self):
+    def get_image(self):
         raise NotImplementedError()
 
     def update(self):
-        data = self.get_data()
-        # self.image.view_new_array(data)
-        image = ArrayInterfaceImage(data)
-        self.sprite._set_texture(image.get_texture())
+        self.sprite._set_texture(self.get_image().get_texture())
 
     def draw(self):
         self.update()
@@ -135,9 +130,22 @@ class BitMapObject(GraphicsObject):
         # должно всегда вызываться после созданя объекта,
         # при добавлении объекта в группу или нет
         self.group = parent
-        self.sprite = pyglet.sprite.Sprite(self.image, self.pos.x, self.pos.y,
-                                           batch=batch, group=self.group, usage="stream")
+        self.sprite = pyglet.sprite.Sprite(self.get_image(), self.pos.x, self.pos.y,
+                                           batch=batch, group=self.group, usage=self.usage)
         self.sprite.scale = self.scale
+
+class BitMapObject(SpriteObject):
+    """
+    Dynamic non-moving sprite
+    """
+    def __init__(self, x=0, y=0, scale=1, **kwargs):
+        super(BitMapObject, self).__init__(x, y, scale, "stream")
+
+    def get_data(self):
+        raise NotImplementedError()
+
+    def get_image(self):
+        return ArrayInterfaceImage(self.get_data())
 
 
 class Mode(EventDispatcher):
