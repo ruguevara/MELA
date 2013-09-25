@@ -3,29 +3,32 @@ import math
 from pyglet import graphics
 from pyglet.gl import GL_QUADS, GL_LINES
 import numpy as np
+from views.base import GraphicsObject
 
 PI4 = math.pi / 4
 PI_minus_PI4 = math.pi *2 - PI4
 _2PI = math.pi * 2
 
-class PopulationRender(object):
-    def __init__(self, batch, env, mode="full", debug=False, group=0):
+class PopulationRender(GraphicsObject):
+    def __init__(self, env, mode="full", debug=False):
+        super(PopulationRender, self).__init__()
         self.env = env
-        self.batch = batch
         self.mode = mode
         self.scale = 8
         self.debug = debug
         self.shape = np.array([[-1,-1],[-1,1],[1,1],[1,-1]])
-        agents_g = graphics.OrderedGroup(group)
-        agents_links_g = graphics.OrderedGroup(group+1)
-        self.vertex_list = self.batch.add(len(self.env.population) * 4, GL_QUADS, agents_g,
-            'v2i/stream', 'c3B/stream'
-        )
-        self.links_list = self.batch.add(len(self.env.population) * 2, GL_LINES, agents_links_g,
-            'v2i/stream', 'c4B/stream'
-        )
         self.attack_colors = np.array([[255, 200, 128, 255],
                                        [255, 0, 0, 0]])
+
+    def add_to_batch(self, batch=None, parent=0):
+        self.vertex_list = batch.add(len(self.env.population) * 4, GL_QUADS,
+                                     graphics.OrderedGroup(0, parent),
+                                     'v2i/stream', 'c3B/stream'
+        )
+        self.links_list = batch.add(len(self.env.population) * 2, GL_LINES,
+                                    graphics.OrderedGroup(1, parent),
+                                    'v2i/stream', 'c4B/stream'
+        )
 
     def update(self):
         X = self.env.X.astype(np.int16)

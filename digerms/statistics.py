@@ -62,4 +62,4 @@ class Statistics(pd.DataFrame):
 
     def log(self, **data):
         self.current = data
-        print self.current
+        # print self.current

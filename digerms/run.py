@@ -13,16 +13,18 @@ from population import Population
 from settings import POPULATION_SIZE, GRID_SCALE
 from statistics import Statistics
 from views.application import Application
-from views.env_view import EnvironmentRender
+from views.env_view import EnvironmentView, ExperimentMode
+from views.stats_view import StatsView
 
 DEFAULTS = dict(
     debug=True,
     fullscreen=False,
     size='1200x800',
     fps=60,
-    show_fps = True,
-    paused = True,
-    random_maze = False,
+    show_fps=True,
+    paused=True,
+    random_maze=False,
+    screen=0
 )
 
 def main():
@@ -30,6 +32,7 @@ def main():
 
     parser.add_argument("--fps", "-f",  type=int, help="Frames per second")
     parser.add_argument("--fullscreen", "-F", action="store_true", help="Fullscreen mode")
+    parser.add_argument("--screen", "-S", action="store", help="Screen number")
     parser.add_argument("--show-fps",    action="store_true", help="Display FPS count")
     parser.add_argument("--paused",      action="store_true", help="Start paused")
     parser.add_argument("--debug", "-d", action="store_true", help="Debug mode")
@@ -40,7 +43,12 @@ def main():
     parser.set_defaults(**DEFAULTS)
     options = parser.parse_args()
 
-    params = dict(fullscreen=options.fullscreen, visible=False, vsync=False, fps=options.fps, show_fps=options.show_fps)
+    params = dict(fullscreen=options.fullscreen,
+                  visible=False,
+                  vsync=False,
+                  fps=options.fps,
+                  show_fps=options.show_fps,
+                  screen=int(options.screen))
 
     maze = None
     grid_size = None
@@ -57,12 +65,8 @@ def main():
         grid_size = maze.shape
     if options.fullscreen:
         app = Application(**params)
-        width = app.window.width
-        height = app.window.height
-        grid_size = grid_size or (height // GRID_SCALE, width // GRID_SCALE)
-        width = grid_size[1] * GRID_SCALE
-        height = grid_size[0] * GRID_SCALE
     else:
+        # TODO понять, как определять высоту из высоты лабиринта и высоты статистики
         if not maze:
             size = map(int, options.size.split('x'))
             grid_size = (size[1] // GRID_SCALE, size[0] // GRID_SCALE)
@@ -71,17 +75,11 @@ def main():
         params.update(dict(width=width, height=height,))
         app = Application(**params)
 
-    maze = maze if maze is not None else Walls(grid_size)
-    stats = Statistics(1000)
-    env = Environment(maze, GRID_SCALE, FOOD_INIT_PROB)
-    env.set_stats(stats)
     population = PolulationWithMessia.random(POPULATION_SIZE)
     # population = Population.random(POPULATION_SIZE)
-    env.set_population(population)
-
-    env_render = EnvironmentRender(width, height, env, debug=options.debug)
-    app.set_scene(env_render, 1./2000)
-    app.paused = options.paused
+    env_view = ExperimentMode(app.window, population, maze, debug=options.debug)
+    env_view.paused = options.paused
+    app.set_mode(env_view, 1./2000)
     app.run()
 
 if __name__ == "__main__":

@@ -49,7 +49,7 @@ def test_population():
     eq_f(env.near_dist[0, 1], a0a1_dist_sq * 4)
 
     env.calc_cell_pos()
-    env.food.update()
+    env.food.simulate()
 
     env.food._food[:] = FOOD_MAX
     env.food._food[0,0] = 0
@@ -61,7 +61,7 @@ def test_population():
     assert np.all( a[2:50].health == 210)
     assert np.all( a[50:].health == 10)
 
-    a.update()
+    a.simulate()
 
 def test_senses():
     population = setup()

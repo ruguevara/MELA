@@ -1,37 +1,48 @@
 # coding: utf-8
 import ctypes
-from scipy import ndimage
 
 import numpy as np
-from pyglet import graphics, sprite, image
-from pyglet.gl import  GL_TRIANGLES, GLuint
-from pyglet.graphics import Batch
+from pyglet import graphics, sprite, app
+from pyglet.gl import  GL_TRIANGLES
+from pyglet.window import key
 from pygarrayimage.arrayimage import ArrayInterfaceImage
+from environment import Environment, Walls
 
-from settings import GRID_SCALE
+from settings import GRID_SCALE, FOOD_INIT_PROB
 
-from views.agent_view import  PopulationRender
+from .agent_view import  PopulationRender
+from .base import GraphicsObject, Mode, Group, BatchGroup, Vec, BitMapObject
+from statistics import Statistics
+from .stats_view import StatsView
 
 FOOD_MAX = 500
 
-class WallsRender(object):
-    def __init__(self, batch, env, group, color=(64, 64, 0)):
+
+class WallsView(BitMapObject):
+    def __init__(self, env, color=(64, 64, 0), **kwargs):
         self.color = color
-        walls = env.walls.astype(np.uint8) * 255
+        self.walls = env.walls
+        super(WallsView, self).__init__(0, 0, scale=GRID_SCALE)
+
+    def get_data(self):
+        walls = self.walls.astype(np.uint8) * 255
         f = np.zeros_like(walls)[..., None].repeat(3, 2)
         f[:] = 255
-        walls = np.dstack([f, walls])
-        walls_ii = ArrayInterfaceImage(walls, allow_copy=True)
-        texture = walls_ii.get_texture()
-        self.walls_sprite = sprite.Sprite(texture, 0, 0, batch=batch, group=graphics.OrderedGroup(group))
-        self.walls_sprite.scale = GRID_SCALE
-
-    def update(self):
-        pass
+        return np.dstack([f, walls])
 
 
-class GrassRender(object):
-    def __init__(self, batch, width, height, env, group, mode="full", color=(0, 255, 0, 128)):
+class SmellsView(BitMapObject):
+    def __init__(self, env, **kwargs):
+        self.env = env
+        super(SmellsView, self).__init__(0, 0, scale=GRID_SCALE)
+
+    def get_data(self):
+        return self.env.smell.all_colors_display(scales=0.01)
+
+
+class GrassView(GraphicsObject):
+    def __init__(self, width, height, env, color=(0, 255, 0, 128), **kwargs):
+        super(GrassView, self).__init__()
         self.color = color
         pps = 3
         self.pps = pps
@@ -48,18 +59,18 @@ class GrassRender(object):
         self.points[:] = np.array(list(np.broadcast(*np.ix_(X, Y)))).reshape(self.numboxes, 1, 2)
         self.points[:, 1, 0] = self.points[:, 0, 0] + 2
         self.points[:, 2, 0] = self.points[:, 0, 0] + 3
-        self.batch = batch
-        self.mode = mode
         self.colors = list(self.color) * (self.numboxes * pps)
-        self.vertex_list = self.batch.add(self.numboxes * self.pps,
-                GL_TRIANGLES, graphics.OrderedGroup(group+1),
+
+    def add_to_batch(self, batch=None, parent=None):
+        # должно всегда вызываться после созданя объекта,
+        # при добавлении объекта в группу или нет
+        self.vertex_list = batch.add(self.numboxes * self.pps,
+                GL_TRIANGLES, parent,
                 'v2i/dynamic', ('c4B/static', self.colors)
             )
-        smell = self.env.smell.all_colors_display()
-        smell_ii = ArrayInterfaceImage(smell, allow_copy=False)
-        texture = smell_ii.get_texture()
-        self.smell_sprite = sprite.Sprite(texture, 0, 0, batch=batch, group=graphics.OrderedGroup(group))
-        self.smell_sprite.scale = GRID_SCALE
+
+    def draw(self):
+        self.vertex_list.draw(GL_TRIANGLES)
 
     def update(self):
         food_h = (self.env.food * (float(self.scale_h) / FOOD_MAX)).astype(np.uint32).T
@@ -68,34 +79,77 @@ class GrassRender(object):
         # fast array copy
         # TODO map array instead of copy
         ctypes.memmove(self.vertex_list.vertices, grass.ctypes.data, len(self.vertex_list.vertices) * 4)
-        smell = self.env.smell
-        smell_colors = smell.all_colors_display(scales=0.01)
-        smell_ii = ArrayInterfaceImage(smell_colors, allow_copy=False)
-        self.smell_sprite._set_texture(smell_ii.get_texture())
 
-# Implements the view
-class EnvironmentRender(object):
+
+class EnvironmentView(Group):
     BG_COLOR = 30, 10, 5
     # Initialize the view
-    def __init__(self, width, height, env, mode="full", debug=False, group=0):
-#        super(EnvironmentRender,self).__init__(self)
+    def __init__(self, env, width, height, **kwargs):
+        super(EnvironmentView, self).__init__()
         self.env = env
+        self.env.update()
         self.width = width
         self.height = height
-        # Create render objects
-        self.mode = mode
-        self.env.update()
-        self.batch = Batch()
-        self.grass = GrassRender(self.batch, self.width, self.height, self.env, group, mode)
-        self.grass.update()
-        self.walls = WallsRender(self.batch, self.env, group + 2)
-        self.agents = PopulationRender(self.batch, self.env, mode, debug=True, group=group+3)
 
-    def get_batch(self):
-        self.grass.update()
-        self.agents.update()
-        return self.batch
+    def add_to_batch(self, batch=None, parent=None):
+        # должно всегда вызываться после созданя объекта,
+        # при добавлении объекта в группу или нет
+        # Create view objects
+        # TODO somehow when adding objects we must know about parent batch
+        super(EnvironmentView, self).add_to_batch(batch, parent)
+        kwargs = {}
+        self.add_objects([
+            SmellsView(self.env, **kwargs),
+            GrassView(self.width, self.height, self.env,  **kwargs),
+            WallsView(self.env,  **kwargs),
+            PopulationRender(self.env,  **kwargs),
+        ])
 
-    def update(self, dt):
-#        for i in xrange(2):
+    def simulate(self, dt=None):
         self.env.update()
+
+
+class ExperimentMode(Mode):
+    def __init__(self, window, population, maze, stats_height=160, **kwagrs):
+        # TODO inherit from BatchGroup or Group?
+        # TODO ability to handle hiding statistics
+        super(ExperimentMode, self).__init__()
+        self.paused = False
+        self.window = window
+        self.width = window.width
+        self.height = window.height
+        self.groups = BatchGroup()
+
+        grid_size = (self.height-stats_height) // GRID_SCALE, self.width // GRID_SCALE
+        maze = maze if maze is not None else Walls(grid_size)
+        env = Environment(maze, GRID_SCALE, FOOD_INIT_PROB)
+        env.set_stats(Statistics(1000))
+        env.set_population(population)
+        self.env_view = self.groups.add(EnvironmentView(env, self.width, self.height-stats_height, **kwagrs))
+
+        # split window
+        self.stats_view = self.groups.add(StatsView(env.stats, self.width, self.height, **kwagrs))
+        self.stats_view.pos = Vec(self.height-stats_height, 0)
+
+    def simulate(self, delta):
+        # may be called with faster rate than screen update at fps rate
+        self.groups.simulate(delta)
+
+    def draw(self):
+        self.groups.draw()
+
+    def toggle_pause(self):
+        self.paused = not self.paused
+
+    def on_key_press(self, symbol, modifiers):
+        if symbol == key.ESCAPE:
+            app.exit()
+        elif symbol == key.RIGHT:
+            if self.paused:
+                self.simulate(1)
+            else:
+                self.toggle_pause()
+        elif symbol == key.SPACE:
+            self.toggle_pause()
+        else:
+            self.groups.on_key_press(symbol, modifiers)
