@@ -124,8 +124,10 @@ class VectorAgent(ObjectArray):
         return stats
 
     def can_give_birth(self):
-        num_children_can = (self.health / (self.birth_health * BIRTH_KPD)) - 1
-        return num_children_can.clip(0)
+        num_children_can = ((self.health - self.birth_health) / (self.birth_health * BIRTH_KPD))
+        num_children_can = num_children_can.clip(0)
+        # print num_children_can.max(), num_children_can.min(), num_children_can.mean()
+        return num_children_can
 
     @classmethod
     def from_chromosomes(cls, chromosomes):
@@ -201,11 +203,15 @@ class VectorAgent(ObjectArray):
         whom_color = self[nearest_i].primary_color
         # if whom_color beats who_color swap who and whom
         who_whom = np.hstack([attacking_i[:,None], nearest_i[:,None]])
-        # color==0 always loose
         dist = (whom_color - who_color) % 7
         loosers = ~(dist % 2).astype(bool)
+        # # color==7 always wins
+        # loosers = loosers | (whom_color==7)
+        # loosers = loosers & ~(who_color==7)
+        # color==0 always loose
         loosers = loosers | (who_color==0)
         loosers = loosers & ~(whom_color==0)
+
         draw = (dist == 0)
         loosers = loosers & ~draw
         who_whom[loosers, :] = who_whom[loosers,::-1] # swap them

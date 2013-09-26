@@ -58,19 +58,28 @@ class StatsView(Group):
         self.height = height
         self.mode = mode
         self.debug = debug
+        self.vertex_lists = {}
         self.plots = {
+            "health_sum":    (( 255, 128,  0), None),
             "fitness_max":  (( 255, 255, 255), None),
             "herbivore_sum": ((   0, 255,   0), POPULATION_SIZE),
-            "age_median":    ((   0,   0, 255), None),
             "age_amax":      ((   0, 255, 255), None),
-            "health_sum":    (( 255, 128,  0), None),
-            "attacked_ok_sum":(( 255,  0,  0), POPULATION_SIZE),
-            # "born":          (( 255, 128, 255), POPULATION_SIZE),
-            # "random":        (( 255, 255,  0), POPULATION_SIZE),
-            # "deaths":        (( 128,  64,  0), POPULATION_SIZE),
-            "total_eaten_mean":(( 0,  64,  128), None),
-        }
-        self.vertex_lists = {}
+            "attacked_ok_sum":(( 255,  255,  0), POPULATION_SIZE),
+            "attacking_sum":    ((   0,   0, 255), POPULATION_SIZE),
+            # "primary_color_histogram_0":(( 128, 128, 128), POPULATION_SIZE),
+            # "primary_color_histogram_1":(( 255,   0,   0), POPULATION_SIZE),
+            # "primary_color_histogram_2":((   0, 255,   0), POPULATION_SIZE),
+            # "primary_color_histogram_3":(( 255, 255,   0), POPULATION_SIZE),
+            # "primary_color_histogram_4":((   0,   0, 255), POPULATION_SIZE),
+            # "primary_color_histogram_5":(( 255,   0, 255), POPULATION_SIZE),
+            # "primary_color_histogram_6":((   0, 255,   0), POPULATION_SIZE),
+            # "primary_color_histogram_7":(( 255, 255, 255), POPULATION_SIZE),
+
+            # "total_eaten_mean":(( 0,  64,  128), None),
+            # # "born":          (( 255, 128, 255), POPULATION_SIZE),
+            # # "random":        (( 255, 255,  0), POPULATION_SIZE),
+            # # "deaths":        (( 128,  64,  0), POPULATION_SIZE),
+            }
 
     def add_to_batch(self, batch=None, parent=None):
         super(StatsView, self).add_to_batch(batch, parent)

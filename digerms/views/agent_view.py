@@ -57,7 +57,6 @@ class PopulationView(GraphicsObject):
         population = self.env.population
         start = random.randint(0, len(self.env.population)-n)
         sel = range(start, start+n)
-        # sel = slice(start, start+n)
         messia = messia_cls(n)
         population._agents.develop_from_chromosomes(messia, sel)
         agent = population._agents[sel]
@@ -67,6 +66,6 @@ class PopulationView(GraphicsObject):
     def on_key_press(self, symbol, modifiers):
         if symbol == key.W:
             # запустить волка
-            self.launch_messia(WolfChromosome, 10)
+            self.launch_messia(WolfChromosome, len(self.env.population)//2)
         elif symbol == key.R:
-            self.launch_messia(RabbitChromosome, 10)
+            self.launch_messia(RabbitChromosome, len(self.env.population)//2)

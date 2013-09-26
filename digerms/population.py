@@ -111,6 +111,8 @@ class Population(object):
         sel_num = int(round(self._count * select_ratio))
         # exclude dead from selection
         sel_num = min(np.count_nonzero(~dead), sel_num)
+        # хотя бы одного всегда убивать
+        sel_num = min(len(self._agents)-1, sel_num)
         selected_idxs = liveness_rank[-sel_num:]
         dead_idxs = liveness_rank[:-sel_num]
         fitness_rank = selected_idxs[np.argsort(fitness[selected_idxs])[::-1]]
@@ -137,7 +139,7 @@ class Population(object):
         # сколько потомков получить при репродукции
         # надо учесть что не все могут быть готовы к репродукции
         # тогда пусть рожают больше положенного
-        to_born_num = self.total_deaths - to_random_num
+        to_born_num = max(0, self.total_deaths - to_random_num)
         self.total_born = self.reproduce(selected_idxs, dead_idxs, fitness, to_born_num)
         self.total_random = self.total_deaths - self.total_born
         self.make_new_random(self.total_random, dead_idxs[self.total_born:])

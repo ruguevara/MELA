@@ -72,12 +72,12 @@ def main():
             grid_size = (size[1] // GRID_SCALE, size[0] // GRID_SCALE)
         width = grid_size[1] * GRID_SCALE
         height = grid_size[0] * GRID_SCALE
-        params.update(dict(width=width, height=height,))
+        params.update(dict(width=width, height=height+160,))
         app = Application(**params)
 
-    population = PolulationWithMessia.random(POPULATION_SIZE)
-    # population = Population.random(POPULATION_SIZE)
-    env_view = ExperimentMode(app.window, population, maze, debug=options.debug)
+    # population = PolulationWithMessia.random(POPULATION_SIZE)
+    population = Population.random(POPULATION_SIZE)
+    env_view = ExperimentMode(app.window, population, maze, stats_height=160, debug=options.debug)
     env_view.paused = options.paused
     app.set_mode(env_view, 1./2000)
     app.run()
