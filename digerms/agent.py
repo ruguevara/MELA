@@ -316,6 +316,7 @@ class VectorAgent(ObjectArray):
         if len(unique_idxs) == 0:
             return 0
         parents = self[unique_idxs]
+        #print unique_idxs
         new_chromosomes = VectorAgentChromosome(len(unique_idxs))
         new_chromosomes[:] = self.chromosomes[unique_idxs]
         new_chromosomes.mutate(to_idxs)

@@ -228,8 +228,12 @@ class Environment(object):
         self.smell.calc_gradient()
 
     def update(self):
+        self.time += 1
         if self.time % 2 == 0:
             self.stats.advance_frame()
+
+        self.population.select_and_reproduce()
+        self.food.update()
         self.fetch_positions()
         self.calc_cell_pos()
         self.check_walls()
@@ -237,8 +241,6 @@ class Environment(object):
         self.set_smells()
         self.set_senses()
         self.population.update()
-        self.food.update()
-        self.time += 1
 
     def get_smells_for_agents(self):
         smells = self.smell[self.cell_X[:, 0], self.cell_X[:, 1]].copy()

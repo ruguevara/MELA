@@ -187,5 +187,4 @@ class Population(object):
 
     def update(self):
         self._agents.update()
-        self.select_and_reproduce()
         self.log_stats()
