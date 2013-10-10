@@ -129,8 +129,9 @@ class EnvironmentView(Group):
             PopulationView(self.env,  **kwargs),
         ])
 
-    def simulate(self, dt=None):
-        self.env.update()
+    def simulate(self, dt=None, multiplier=1):
+        for i in range(multiplier):
+            self.env.update()
 
 
 class ExperimentMode(Mode):

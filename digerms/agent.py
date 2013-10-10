@@ -6,7 +6,7 @@ import numpy as np
 from brain import VectorBrain
 from genome import ACTUATORS, ObjectArray, \
                    SENSES, VectorAgentChromosome, FloatObjectArray
-from settings import MAX_SPEED, ROT_SPEED, ATTACK_RADIUS, ATTACK_RADIUS_SQ, MAX_HEALTH, ENERGY_PER_TURN, ATTACK_ENERGY, HUNT_KPD, BIRTH_KPD, CARN_SPEED_HANDICAP
+import settings
 
 class VectorSenses(FloatObjectArray):
     _fields = SENSES
@@ -123,12 +123,6 @@ class VectorAgent(ObjectArray):
                         stats[f_name_i] = one_val
         return stats
 
-    def can_give_birth(self):
-        num_children_can = ((self.health - self.birth_health) / (self.birth_health * BIRTH_KPD))
-        num_children_can = num_children_can.clip(0)
-        # print num_children_can.max(), num_children_can.min(), num_children_can.mean()
-        return num_children_can
-
     @classmethod
     def from_chromosomes(cls, chromosomes):
         babies = cls(chromosomes.shape)
@@ -168,7 +162,7 @@ class VectorAgent(ObjectArray):
 
     def add_energy(self, energy, sel=slice(None)):
         energy_array = np.array(energy)
-        self.health[sel] = (self.health[sel] + energy_array).clip(0, MAX_HEALTH).astype(np.int32)
+        self.health[sel] = (self.health[sel] + energy_array).clip(0, settings.MAX_HEALTH).astype(np.int32)
         self.total_eaten[sel] += energy_array.clip(0)
 
     def consume_energy(self, ammount, sel=slice(None)):
@@ -214,9 +208,9 @@ class VectorAgent(ObjectArray):
         return loosers, draw
 
     def check_attack(self):
-        all_nearest_i, all_in_radius = self.env.get_nearest_agent_in(slice(None), ATTACK_RADIUS_SQ)
+        all_nearest_i, all_in_radius = self.env.get_nearest_agent_in(slice(None), settings.ATTACK_RADIUS_SQ)
         self.near_to = all_nearest_i
-        self.consume_energy(ATTACK_ENERGY, self.attacking)
+        self.consume_energy(settings.ATTACK_ENERGY, self.attacking)
         nearest_i = all_nearest_i[self.attacking]
         in_radius = all_in_radius[self.attacking]
         if not np.count_nonzero(in_radius):
@@ -247,7 +241,7 @@ class VectorAgent(ObjectArray):
 
     def hunt(self, predators, prays):
         # before = self.health[predators].copy()
-        self.add_energy(self.health[prays] * HUNT_KPD, predators)
+        self.add_energy(self.health[prays] * settings.HUNT_KPD, predators)
         # after = self.health[predators]
         # print (after - before).sum()
         self.kill(prays)
@@ -261,12 +255,12 @@ class VectorAgent(ObjectArray):
         self.eating = self.actuators.eat.round().astype(np.bool)
         self.attacking = self.actuators.attack.round().astype(np.bool)
 
-        max_speeds = MAX_SPEED + CARN_SPEED_HANDICAP * (~self.herbivore)
+        max_speeds = settings.MAX_SPEED + settings.CARN_SPEED_HANDICAP * (~self.herbivore)
         self.speed = self.actuators.walk * max_speeds
         self.speed = self.speed.clip(0, max_speeds)
         rot_left = self.actuators.left.clip(-np.pi, np.pi)
         rot_right = self.actuators.right.clip(-np.pi, np.pi)
-        self.rotate((rot_left - rot_right) * ROT_SPEED)
+        self.rotate((rot_left - rot_right) * settings.ROT_SPEED)
 
     def tick_brains(self):
         res = self.brains.tick(self.senses.get_values())
@@ -284,7 +278,7 @@ class VectorAgent(ObjectArray):
         self.check_attack()
         self.age += 1
         self.move()
-        self.consume_energy(ENERGY_PER_TURN * self.speed)
+        self.consume_energy(settings.ENERGY_PER_TURN + settings.ENERGY_PER_SPEED * self.speed)
 
     def rotate(self, angles, sel=slice(None)):
         cos, sin = np.cos(angles), np.sin(angles)
@@ -310,13 +304,18 @@ class VectorAgent(ObjectArray):
         self.y[idxs] += self.ay[idxs] * step
         self.wrap()
 
+    def can_give_birth(self):
+        num_children_can = ((self.health - self.birth_health) / (self.birth_health / settings.BIRTH_KPD))
+        num_children_can = num_children_can.clip(0)
+        # print num_children_can.max(), num_children_can.min(), num_children_can.mean()
+        return num_children_can
+
     def reproduce(self, idxs, to_idxs, consume_health=True):
         unique_idxs = np.unique(idxs)
         to_idxs = to_idxs[:len(unique_idxs)]
         if len(unique_idxs) == 0:
             return 0
         parents = self[unique_idxs]
-        #print unique_idxs
         new_chromosomes = VectorAgentChromosome(len(unique_idxs))
         new_chromosomes[:] = self.chromosomes[unique_idxs]
         new_chromosomes.mutate(to_idxs)
@@ -324,12 +323,13 @@ class VectorAgent(ObjectArray):
         self.x[to_idxs] = parents.x
         self.y[to_idxs] = parents.y
         self.rotate(np.random.random(len(unique_idxs)) * (math.pi*2), to_idxs)
-        self.x[to_idxs] += self.ax[to_idxs] * ATTACK_RADIUS
-        self.y[to_idxs] += self.ay[to_idxs] * ATTACK_RADIUS
+        # отодвинуть потомство, чтобы не топтаться по нему
+        self.x[to_idxs] += self.ax[to_idxs] * settings.ATTACK_RADIUS
+        self.y[to_idxs] += self.ay[to_idxs] * settings.ATTACK_RADIUS
         self.gencount[to_idxs] = parents.gencount + 1
         self.health[to_idxs] = parents.birth_health
         if consume_health:
-            self.consume_energy(parents.birth_health / BIRTH_KPD, unique_idxs)
+            self.consume_energy(parents.birth_health / settings.BIRTH_KPD, unique_idxs)
         return len(unique_idxs)
 
 

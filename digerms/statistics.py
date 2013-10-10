@@ -29,6 +29,7 @@ class Statistics(pd.DataFrame):
         ('attacking_sum', np.uint16),
         ('attacked_ok_sum', np.uint16),
         ('eating_sum', np.uint16),
+        ('ready_to_born', np.uint16),
 
         ('primary_color_histogram_0', np.uint16),
         ('primary_color_histogram_1', np.uint16),

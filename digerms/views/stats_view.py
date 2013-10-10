@@ -58,6 +58,8 @@ class StatsView(Group):
         self.debug = debug
         self.vertex_lists = {}
         self.plots = {
+            "ready_to_born": (( 255, 255,  0), POPULATION_SIZE),
+            "born":          (( 255, 128, 255), POPULATION_SIZE),
             "health_sum":    (( 255, 128,  0), None),
             "fitness_max":  (( 255, 255, 255), None),
             "herbivore_sum": ((   0, 255,   0), POPULATION_SIZE),
@@ -74,7 +76,6 @@ class StatsView(Group):
             # "primary_color_histogram_7":(( 255, 255, 255), POPULATION_SIZE),
 
             # "total_eaten_mean":(( 0,  64,  128), None),
-            # # "born":          (( 255, 128, 255), POPULATION_SIZE),
             # # "random":        (( 255, 255,  0), POPULATION_SIZE),
             # # "deaths":        (( 128,  64,  0), POPULATION_SIZE),
             }

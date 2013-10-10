@@ -1,9 +1,8 @@
 # coding: utf-8
 import math
 
-POPULATION_SIZE = 500
+POPULATION_SIZE = 300
 SELECT_RATIO = 0.95
-# RANDOM_RATIO = 0
 RANDOM_RATIO = 0.01
 
 ROT_SPEED = 0.5
@@ -13,15 +12,16 @@ GRID_SCALE = 8
 MAX_HEALTH = 50000
 MIN_HEALTH = 500
 # сколько энергии тратится на ход (умножается на скорость движения)
+ENERGY_PER_SPEED = 0.1
 ENERGY_PER_TURN = 1
 # сколько энергии тратится на атаку
-ATTACK_ENERGY = 1
+ATTACK_ENERGY = 0.5
 
 # чтобы было невыгодно есть своих детей BIRTH_KPD должно быть больше HUNT_KPD
 #HUNT_KPD = 0.9
 #BIRTH_KPD = 1
-HUNT_KPD = 0.3
-BIRTH_KPD = 0.3
+HUNT_KPD = 1
+BIRTH_KPD = 0.8
 
 # food
 FOOD_GROWTH = 0.01 #0.00001 # how quickly does food grow on a square?
@@ -36,6 +36,8 @@ MAX_SPEED = GRID_SCALE * math.sqrt(2) / 2
 CARN_SPEED_HANDICAP = MAX_SPEED / 2
 ATTACK_RADIUS = GRID_SCALE * math.sqrt(2) * 2
 ATTACK_RADIUS_SQ = ATTACK_RADIUS * ATTACK_RADIUS
+
+
 
 class Settings(object):
     """
