@@ -28,7 +28,7 @@ FOOD_GROWTH = 0.01 #0.00001 # how quickly does food grow on a square?
 FOOD_INTAKE = 200. # how much does every agent consume?
 FOOD_MAX = 500. # how much food per cell can there be at max?
 FOOD_INIT_PROB = 0.3 # at what prob new food appears at game start
-FOOD_APPEAR_PROB = 0.0001 # at what prob new food appears
+FOOD_APPEAR_PROB = 0.001 # at what prob new food appears
 FOOD_APPEAR_AMM = float(FOOD_MAX) / 2
 
 # calculated

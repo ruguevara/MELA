@@ -2,8 +2,6 @@
 from StringIO import StringIO
 import numpy as np
 
-from matplotlib import pyplot as plt
-
 import pyglet
 from pyglet import graphics
 from pyglet import gl

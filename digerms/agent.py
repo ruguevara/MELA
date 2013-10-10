@@ -188,6 +188,31 @@ class VectorAgent(ObjectArray):
         amm = self.env.consume_food(self.eating)
         self.add_energy(amm, self.eating)
 
+    def resolve_fights_kmb(self, attacking_i, nearest_i):
+        # камень ножницы бумага
+        who_color = self[attacking_i].primary_color
+        whom_color = self[nearest_i].primary_color
+        dist = (whom_color - who_color) % 7
+        loosers = ~(dist % 2).astype(bool)
+        # # color==7 always wins
+        # loosers = loosers | (whom_color==7)
+        # loosers = loosers & ~(who_color==7)
+        # color==0 always loose
+        draw = (dist == 0)
+        loosers = loosers | (who_color == 0)
+        loosers = loosers & ~(whom_color == 0)
+        loosers = loosers & ~draw
+        return loosers, draw
+
+    def resolve_fights_strength(self, attacking_i, nearest_i):
+        # камень ножницы бумага
+        who_health = self[attacking_i].health
+        whom_health = self[nearest_i].health
+        diff = whom_health < who_health
+        loosers = (diff < 0).astype(bool)
+        draw = (diff == 0)
+        return loosers, draw
+
     def check_attack(self):
         all_nearest_i, all_in_radius = self.env.get_nearest_agent_in(slice(None), ATTACK_RADIUS_SQ)
         self.near_to = all_nearest_i
@@ -199,23 +224,15 @@ class VectorAgent(ObjectArray):
         # remove not in radius
         attacking_i = np.where(self.attacking)[0][in_radius]
         nearest_i = nearest_i[in_radius]
-        who_color = self[attacking_i].primary_color
-        whom_color = self[nearest_i].primary_color
-        # if whom_color beats who_color swap who and whom
-        who_whom = np.hstack([attacking_i[:,None], nearest_i[:,None]])
-        dist = (whom_color - who_color) % 7
-        loosers = ~(dist % 2).astype(bool)
-        # # color==7 always wins
-        # loosers = loosers | (whom_color==7)
-        # loosers = loosers & ~(who_color==7)
-        # color==0 always loose
-        loosers = loosers | (who_color==0)
-        loosers = loosers & ~(whom_color==0)
 
-        draw = (dist == 0)
-        loosers = loosers & ~draw
+        loosers, draw = self.resolve_fights_kmb(attacking_i, nearest_i)
+        #loosers, draw = self.resolve_fights_strength(attacking_i, nearest_i)
+
+        # if whom beats who swap who and whom
+        who_whom = np.hstack([attacking_i[:,None], nearest_i[:,None]])
         who_whom[loosers, :] = who_whom[loosers,::-1] # swap them
         who_whom = np.delete(who_whom, np.where(draw), axis=0)
+
         if who_whom.size == 0:
             return
         # remove duplicates after swapping
