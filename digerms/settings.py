@@ -12,15 +12,13 @@ GRID_SCALE = 8
 MAX_HEALTH = 50000
 MIN_HEALTH = 500
 # сколько энергии тратится на ход (умножается на скорость движения)
-ENERGY_PER_SPEED = 0.1
+ENERGY_PER_SPEED = 0.2
 ENERGY_PER_TURN = 1
 # сколько энергии тратится на атаку
-ATTACK_ENERGY = 0.5
+ATTACK_ENERGY = 50
 
 # чтобы было невыгодно есть своих детей BIRTH_KPD должно быть больше HUNT_KPD
-#HUNT_KPD = 0.9
-#BIRTH_KPD = 1
-HUNT_KPD = 1
+HUNT_KPD = 0.5
 BIRTH_KPD = 0.8
 
 # food

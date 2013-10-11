@@ -202,10 +202,9 @@ class VectorAgent(ObjectArray):
         # камень ножницы бумага
         who_health = self[attacking_i].health
         whom_health = self[nearest_i].health
-        diff = whom_health < who_health
-        loosers = (diff < 0).astype(bool)
-        draw = (diff == 0)
-        return loosers, draw
+        whom_attack_back = self[nearest_i].attacking
+        loosers = whom_attack_back & (who_health < whom_health)
+        return loosers, []
 
     def check_attack(self):
         all_nearest_i, all_in_radius = self.env.get_nearest_agent_in(slice(None), settings.ATTACK_RADIUS_SQ)
@@ -219,12 +218,13 @@ class VectorAgent(ObjectArray):
         attacking_i = np.where(self.attacking)[0][in_radius]
         nearest_i = nearest_i[in_radius]
 
-        loosers, draw = self.resolve_fights_kmb(attacking_i, nearest_i)
-        #loosers, draw = self.resolve_fights_strength(attacking_i, nearest_i)
+        #loosers, draw = self.resolve_fights_kmb(attacking_i, nearest_i)
+        loosers, draw = self.resolve_fights_strength(attacking_i, nearest_i)
 
         # if whom beats who swap who and whom
         who_whom = np.hstack([attacking_i[:,None], nearest_i[:,None]])
         who_whom[loosers, :] = who_whom[loosers,::-1] # swap them
+        # удаляем с ничьей
         who_whom = np.delete(who_whom, np.where(draw), axis=0)
 
         if who_whom.size == 0:

@@ -66,6 +66,6 @@ class PopulationView(GraphicsObject):
     def on_key_press(self, symbol, modifiers):
         if symbol == key.W:
             # запустить волка
-            self.launch_messia(WolfChromosome, len(self.env.population)//2)
+            self.launch_messia(WolfChromosome, len(self.env.population)//10)
         elif symbol == key.R:
-            self.launch_messia(RabbitChromosome, len(self.env.population)//2)
+            self.launch_messia(RabbitChromosome, len(self.env.population)//10)
