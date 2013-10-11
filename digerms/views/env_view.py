@@ -136,7 +136,6 @@ class EnvironmentView(Group):
 
 class ExperimentMode(Mode):
     def __init__(self, window, population, maze, stats_height=160, **kwagrs):
-        # TODO inherit from BatchGroup or Group?
         # TODO ability to handle hiding statistics
         super(ExperimentMode, self).__init__()
         self.paused = False

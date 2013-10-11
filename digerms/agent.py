@@ -186,8 +186,10 @@ class VectorAgent(ObjectArray):
         # камень ножницы бумага
         who_color = self[attacking_i].primary_color
         whom_color = self[nearest_i].primary_color
+        whom_attack_back = self[nearest_i].attacking
         dist = (whom_color - who_color) % 7
-        loosers = ~(dist % 2).astype(bool)
+        result = (dist % 2).astype(bool)
+        loosers = ~result & whom_attack_back
         # # color==7 always wins
         # loosers = loosers | (whom_color==7)
         # loosers = loosers & ~(who_color==7)
@@ -218,9 +220,10 @@ class VectorAgent(ObjectArray):
         attacking_i = np.where(self.attacking)[0][in_radius]
         nearest_i = nearest_i[in_radius]
 
-        #loosers, draw = self.resolve_fights_kmb(attacking_i, nearest_i)
-        loosers, draw = self.resolve_fights_strength(attacking_i, nearest_i)
-
+        if settings.ATTACK_TYPE == 'strength':
+            loosers, draw = self.resolve_fights_strength(attacking_i, nearest_i)
+        else:
+            loosers, draw = self.resolve_fights_kmb(attacking_i, nearest_i)
         # if whom beats who swap who and whom
         who_whom = np.hstack([attacking_i[:,None], nearest_i[:,None]])
         who_whom[loosers, :] = who_whom[loosers,::-1] # swap them

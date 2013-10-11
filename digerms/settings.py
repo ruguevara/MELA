@@ -7,7 +7,7 @@ RANDOM_RATIO = 0.01
 
 ROT_SPEED = 0.5
 # масштаб сетки
-GRID_SCALE = 8
+GRID_SCALE = 10
 
 MAX_HEALTH = 50000
 MIN_HEALTH = 500
@@ -15,11 +15,14 @@ MIN_HEALTH = 500
 ENERGY_PER_SPEED = 0.2
 ENERGY_PER_TURN = 1
 # сколько энергии тратится на атаку
-ATTACK_ENERGY = 50
+ATTACK_ENERGY = 1
 
 # чтобы было невыгодно есть своих детей BIRTH_KPD должно быть больше HUNT_KPD
 HUNT_KPD = 0.5
 BIRTH_KPD = 0.8
+
+ATTACK_TYPE = "kmb" # "kmb"
+#ATTACK_TYPE = "strength" # "kmb"
 
 # food
 FOOD_GROWTH = 0.01 #0.00001 # how quickly does food grow on a square?
