@@ -1,11 +1,21 @@
 # coding: utf-8
-from pyglet import app, clock
+from pyglet import app, clock, gl
 from pyglet.window import key, Window, get_platform
 
 from pyglet.gl import (
     glBlendFunc, glClear, glClearColor, glEnable,
     GL_BLEND, GL_COLOR_BUFFER_BIT, GL_LINE_SMOOTH, GL_ONE_MINUS_SRC_ALPHA,
     GL_SRC_ALPHA)
+
+
+class MyWindow(Window):
+    def __init__(self, *args, **kwargs):
+        fullscreen = kwargs.pop("fullscreen")
+        screen = kwargs["screen"]
+        super(MyWindow, self).__init__(*args, **kwargs)
+        if fullscreen:
+            self.set_fullscreen(True, screen, None, None, None)
+            self.set_location(screen.x, 0)
 
 class Application(object):
     # Initialize the view
@@ -18,7 +28,7 @@ class Application(object):
         display = platform.get_default_display()
         screens = display.get_screens()
         screen=screens[screen]
-        self.window = Window(fullscreen=fullscreen, screen=screen,
+        self.window = MyWindow(fullscreen=fullscreen, screen=screen,
             width=width, height=height, visible=visible,
             vsync=vsync
         )
