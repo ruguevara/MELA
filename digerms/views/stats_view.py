@@ -76,7 +76,7 @@ class StatsView(Group):
             # "primary_color_histogram_7":(( 255, 255, 255), POPULATION_SIZE),
 
             # "total_eaten_mean":(( 0,  64,  128), None),
-            # # "random":        (( 255, 255,  0), POPULATION_SIZE),
+            "random":        (( 255, 255,  0), POPULATION_SIZE),
             # # "deaths":        (( 128,  64,  0), POPULATION_SIZE),
             }
 

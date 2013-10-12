@@ -1,11 +1,12 @@
 # coding: utf-8
 import math
 import random
-from pyglet import graphics
+from pyglet import graphics, text
 from pyglet.gl import GL_QUADS, GL_LINES
 from pyglet.window import key
 import numpy as np
 from messia import WolfChromosome, RabbitChromosome
+import settings
 
 from views.base import GraphicsObject
 
@@ -29,6 +30,11 @@ class PopulationView(GraphicsObject):
                                     graphics.OrderedGroup(1, parent),
                                     'v2i/stream', 'c4B/stream'
         )
+        self.label = text.Label('', x=8, y=50,
+                        font_size = 9,
+                        color = (255,255,255,255),
+                        batch=batch, group=graphics.OrderedGroup(2, parent))
+
 
     def update(self):
         X = self.env.X.astype(np.int16)
@@ -40,6 +46,10 @@ class PopulationView(GraphicsObject):
         colors = colors.reshape(colors.shape[0], 1, 3).repeat(4, 1)
         self.vertex_list.vertices = points.flatten()
         self.vertex_list.colors = colors.flatten()
+        texts = []
+        for param in ("MUT_RATE", "RANDOM_RATIO"):
+            texts.append("%s = %0.2f" % (param, getattr(settings, param)))
+        self.label.text = ";\n\r".join(texts)
 
         if self.debug:
             # draw links
@@ -69,3 +79,11 @@ class PopulationView(GraphicsObject):
             self.launch_messia(WolfChromosome, len(self.env.population)//10)
         elif symbol == key.R:
             self.launch_messia(RabbitChromosome, len(self.env.population)//10)
+        elif symbol == key.MINUS:
+            settings.MUT_RATE /= 1.1
+        elif symbol == key.EQUAL:
+            settings.MUT_RATE *= 1.1
+        elif symbol == key.COMMA:
+            settings.RANDOM_RATIO /= 1.1
+        elif symbol == key.PERIOD:
+            settings.RANDOM_RATIO *= 1.1

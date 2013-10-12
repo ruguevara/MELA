@@ -123,6 +123,7 @@ class Population(object):
         # random_ratio -- сколько еще добавить случайных агентов
         select_ratio=SELECT_RATIO
         random_ratio=RANDOM_RATIO
+        select_ratio=min(select_ratio, 1-random_ratio)
         fitness = self.fitness()
         selected_idxs, dead_idxs = self.select(fitness, select_ratio)
         self.total_deaths = len(dead_idxs)

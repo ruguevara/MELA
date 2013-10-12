@@ -19,7 +19,7 @@ from views.stats_view import StatsView
 DEFAULTS = dict(
     debug=True,
     fullscreen=False,
-    size='1200x800',
+    size='1200x600',
     fps=60,
     show_fps=True,
     paused=True,

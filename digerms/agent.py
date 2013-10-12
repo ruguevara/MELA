@@ -334,5 +334,3 @@ class VectorAgent(ObjectArray):
         if consume_health:
             self.consume_energy(parents.birth_health / settings.BIRTH_KPD, unique_idxs)
         return len(unique_idxs)
-
-

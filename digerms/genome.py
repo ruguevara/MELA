@@ -4,6 +4,7 @@ import numpy as np
 import sys
 from prettytable import PrettyTable
 from environment import SENSES
+import settings
 
 INPUTSIZE = len(SENSES)
 
@@ -168,8 +169,8 @@ class VectorChromosome(object):
         # если мутаций мало, наверное нужно гены по одному мутировать в цикле
         # иначе будем оперировать большими объемами с немутировавшими генами зазря
         mutators = np.random.random((self.shape[0], self.genome_len))
-        mut_rate = self.__get_parameter("mut_rate")
-        mut_std = self.__get_parameter("mut_std")
+        mut_rate = self.__get_parameter("mut_rate") * settings.MUT_RATE
+        mut_std = self.__get_parameter("mut_std") * settings.MUT_RATE
         mutated = mut_rate[..., np.newaxis] >= mutators
         # получить индексы мутирующих генов
         n = len(np.flatnonzero(mutated))
