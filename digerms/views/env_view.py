@@ -2,10 +2,9 @@
 import ctypes
 
 import numpy as np
-from pyglet import graphics, sprite, app
+from pyglet import app
 from pyglet.gl import  GL_TRIANGLES
 from pyglet.window import key
-from pygarrayimage.arrayimage import ArrayInterfaceImage
 from environment import Environment, Walls
 
 from settings import GRID_SCALE, FOOD_INIT_PROB
@@ -147,7 +146,7 @@ class ExperimentMode(Mode):
         grid_size = (self.height-stats_height) // GRID_SCALE, self.width // GRID_SCALE
         maze = maze if maze is not None else Walls(grid_size)
         env = Environment(maze, GRID_SCALE, FOOD_INIT_PROB)
-        env.set_stats(Statistics(self.width))
+        env.set_stats(Statistics.for_shape(self.width))
         env.set_population(population)
         # split window
         self.env_view = EnvironmentView(env, self.width, self.height-stats_height, **kwagrs)

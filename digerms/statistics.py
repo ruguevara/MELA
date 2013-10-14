@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 class Statistics(pd.DataFrame):
-    _fields = (
+    _stats_fields = (
         ('birth_health_mean', np.float),
         ('birth_health_amin', np.float),
         ('birth_health_amax', np.float),
@@ -41,12 +41,18 @@ class Statistics(pd.DataFrame):
         ('primary_color_histogram_7', np.uint16),
     )
 
-    def __init__(self, shape):
-        dtype = [(n,t) for n, t in self._fields]
+    @classmethod
+    def for_shape(self, shape):
+        dtype = [(n,t) for n, t in self._stats_fields]
         data = np.recarray(shape, dtype=dtype)
         data[:] = 0
-        super(Statistics, self).__init__(data=data)
-        self._pointer = 0
+        stats = Statistics(data=data)
+        stats._pointer = 0
+        return stats
+
+    #def __init__(self, *args, **kwargs):
+    #    self._pointer = 0
+    #    super(Statistics, self).__init__(*args, **kwargs)
 
     def _get_current(self):
         return self.ix[self._pointer]

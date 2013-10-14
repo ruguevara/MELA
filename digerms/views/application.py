@@ -13,9 +13,9 @@ class MyWindow(Window):
         fullscreen = kwargs.pop("fullscreen")
         screen = kwargs["screen"]
         super(MyWindow, self).__init__(*args, **kwargs)
-        if fullscreen:
-            self.set_fullscreen(True, screen, None, None, None)
-            self.set_location(screen.x, 0)
+        #if fullscreen:
+        #    self.set_fullscreen(True, screen, None, None, None)
+        #    self.set_location(screen.x, 0)
 
 class Application(object):
     # Initialize the view
