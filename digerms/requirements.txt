@@ -3,5 +3,7 @@ scipy>=0.12.1
 pyglet>=1.1.4
 PyOpenGL>=3.0.2
 PyOpenGL-accelerate>=3.0.2
-pandas>=0.12.1
+pandas>=0.12.0
 pygarrayimage
+argparse
+prettytable
